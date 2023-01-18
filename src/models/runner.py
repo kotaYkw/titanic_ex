@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
-from model import Model
+from models.model import Model
 from sklearn.metrics import log_loss
 from sklearn.model_selection import StratifiedKFold
 from typing import Callable, List, Optional, Tuple, Union
 
-from util import Logger, Util
+from models.util import Logger, Util
 
 logger = Logger()
 
@@ -48,8 +48,9 @@ class Runner:
                 （モデルのインスタンス、レコードのインデックス、予測値、評価によるスコア）のタプル
         """
         validation = i_fold != 'all'
-        train_x = self.load_x_train
-        train_y = self.loady_train
+        train_x = self.load_x_train()
+        train_x.info()
+        train_y = self.load_y_train()
 
         if validation:
             # 学習データ・検証データをセットする
@@ -105,7 +106,7 @@ class Runner:
         logger.info(f'{self.run_name} - end training cv - score {np.mean(scores)}')
 
         # 予測結果の保存
-        Util.dump(preds, f'../model/pred/{self.run_name}-train.pkl')
+        Util.dump(preds, f'model/pred/{self.run_name}-train.pkl')
 
         # 評価結果の保存
         logger.result_scores(self.run_name, scores)
@@ -133,7 +134,7 @@ class Runner:
         pred_avg = np.mean(preds, axis=0)
 
         # 予測結果の保存
-        Util.dump(pred_avg, f'../model/pred/{self.run_name}-test.pkl')
+        Util.dump(pred_avg, f'model/pred/{self.run_name}-test.pkl')
 
         logger.info(f'{self.run_name} - end prediction cv')
 
@@ -163,7 +164,7 @@ class Runner:
         pred = model.predict(test_x)
 
         # 予測結果の保存
-        Util.dump(pred, f'../model/pred/{self.run_name}-test.pkl')
+        Util.dump(pred, f'model/pred/{self.run_name}-test.pkl')
 
         logger.info(f'{self.run_name} - end prediction all')
 
@@ -180,6 +181,16 @@ class Runner:
         run_fold_name = f'{self.run_name}-{i_fold}'
         return self.model_cls(run_fold_name, self.params)
 
+    def preprocess(self, train_df):
+        train_df['Sex'] = train_df['Sex'].astype("category")
+        train_df['Pclass'] = train_df['Pclass'].astype("category")
+        train_df['Age'] = train_df['Age'].fillna(-1)
+        train_df['Age'] = train_df['Age'].astype("int")
+        train_df['SibSp'] = train_df['SibSp'].astype("int")
+        train_df['Parch'] = train_df['Parch'].astype("int")
+        train_df['Embarked'] = train_df['Embarked'].astype("category")
+        return train_df
+
     def load_x_train(self) -> pd.DataFrame:
         """学習データの特徴量を読み込む
         
@@ -189,7 +200,9 @@ class Runner:
         # 学習データの読込を行う
         # 列名で抽出する以上のことを行う場合、このメソッドの修正が必要
         # 毎回train.csvを読み込むのは効率が悪いため、データに応じて適宜対応するのが望ましい（他メソッドも同様）
-        return pd.read_csv('../input/train.csv')[self.features]
+        df = pd.read_csv('input/train.csv')[self.features]
+        df = self.preprocess(df)
+        return df
 
     def load_y_train(self) -> pd.Series:
         """学習データの目的変数を読み込む
@@ -198,9 +211,7 @@ class Runner:
             pd.Series: 学習データの目的変数
         """
         # 目的変数の読込を行う
-        train_y = pd.read_csv('../input/train.csv')['target']
-        train_y = np.array([int(st[-1]) for st in train_y]) - 1
-        train_y = pd.Series(train_y)
+        train_y = pd.read_csv('input/train.csv')['Survived']
         return train_y
 
     def load_x_test(self) -> pd.DataFrame:
@@ -209,7 +220,9 @@ class Runner:
         Returns:
             pd.DataFrame: テストデータの特徴量
         """
-        return pd.read_csv('../input/test.csv')[self.features]
+        df = pd.read_csv('input/test.csv')[self.features]
+        df = self.preprocess(df)
+        return df
 
     def load_index_fold(self, i_fold: int) -> np.array:
         """クロスバリデーションでのfoldを指定して対応するレコードのインデックスを返す

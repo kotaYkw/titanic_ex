@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from sklearn.externals import joblib
+import joblib
 
 
 class Util:
@@ -25,8 +25,8 @@ class Logger:
         self.general_logger = logging.getLogger('general')
         self.result_logger = logging.getLogger('result')
         stream_handler = logging.StreamHandler()
-        file_general_handler = logging.FileHandler('../model/general.log')
-        file_result_handler = logging.FileHandler('../model/result.log')
+        file_general_handler = logging.FileHandler('models/general.log')
+        file_result_handler = logging.FileHandler('models/result.log')
         if len(self.general_logger.handlers) == 0:
             self.general_logger.addHandler(stream_handler)
             self.general_logger.addHandler(file_general_handler)
@@ -65,8 +65,8 @@ class Submission:
 
     @classmethod
     def create_submission(cls, run_name):
-        submission = pd.read_csv('../input/sampleSubmission.csv')
-        pred = Util.load(f'../model/pred/{run_name}-test.pkl')
+        submission = pd.read_csv('input/sampleSubmission.csv')
+        pred = Util.load(f'model/pred/{run_name}-test.pkl')
         for i in range(pred.shape[1]):
             submission[f'Class_{i + 1}'] = pred[:, i]
-        submission.to_csv(f'../submission/{run_name}.csv', index=False)
+        submission.to_csv(f'submission/{run_name}.csv', index=False)

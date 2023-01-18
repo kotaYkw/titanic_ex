@@ -1,16 +1,16 @@
 import numpy as np
 import pandas as pd
 
-from model.model_xgb import ModelXGB
-from model.runner import Runner
-from model.util import Submission
+from models.model_xgb import ModelXGB
+from models.runner import Runner
+from models.util import Submission
 
 if __name__ == '__main__':
 
     params_xgb = {
         'objective': 'multi:softprob',
         'eval_metric': 'mlogloss',
-        'num_class': 9,
+        'num_class': 2,
         'max_depth': 12,
         'eta': 0.1,
         'min_child_weight': 10,
@@ -25,17 +25,8 @@ if __name__ == '__main__':
     params_xgb_all = dict(params_xgb)
     params_xgb_all['num_round'] = 350
 
-    params_nn = {
-        'layers': 3,
-        # サンプルのため早く終わるように設定
-        'nb_epoch': 5,  # 1000
-        'patience': 10,
-        'dropout': 0.5,
-        'units': 512,
-    }
-
     # 特徴量の指定
-    features = [f'feat_{i}' for i in range(1, 94)]
+    features = ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
 
     # xgboostによる学習・予測
     runner = Runner('xgb1', ModelXGB, features, params_xgb)
