@@ -8,9 +8,8 @@ from models.util import Submission
 if __name__ == '__main__':
 
     params_xgb = {
-        'objective': 'multi:softprob',
-        'eval_metric': 'mlogloss',
-        'num_class': 2,
+        'objective': 'binary:logistic',
+        'eval_metric': 'logloss',
         'max_depth': 12,
         'eta': 0.1,
         'min_child_weight': 10,
