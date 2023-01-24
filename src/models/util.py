@@ -25,8 +25,8 @@ class Logger:
         self.general_logger = logging.getLogger('general')
         self.result_logger = logging.getLogger('result')
         stream_handler = logging.StreamHandler()
-        file_general_handler = logging.FileHandler('models/general.log')
-        file_result_handler = logging.FileHandler('models/result.log')
+        file_general_handler = logging.FileHandler('logs/general.log')
+        file_result_handler = logging.FileHandler('logs/result.log')
         if len(self.general_logger.handlers) == 0:
             self.general_logger.addHandler(stream_handler)
             self.general_logger.addHandler(file_general_handler)
