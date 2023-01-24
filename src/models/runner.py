@@ -181,7 +181,15 @@ class Runner:
         run_fold_name = f'{self.run_name}-{i_fold}'
         return self.model_cls(run_fold_name, self.params)
 
-    def preprocess(self, train_df):
+    def preprocess(self, train_df) -> pd.DataFrame:
+        """データの前処理を行う
+        
+        Args:
+            train_df (pd.DataFrame): 前処理を行うデータフレーム
+
+        Returns:
+            pd.DataFrame: 前処理済みのデータフレーム
+        """
         train_df['Sex'] = train_df['Sex'].astype("category")
         train_df['Pclass'] = train_df['Pclass'].astype("category")
         train_df['Age'] = train_df['Age'].fillna(-1)
