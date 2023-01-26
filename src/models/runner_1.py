@@ -7,7 +7,7 @@ from typing import Callable, List, Optional, Tuple, Union
 
 from models.util import Logger, Util
 
-logger = Logger()
+logger = Logger(general_name='general_1', result_name='result_1')
 
 
 class Runner:

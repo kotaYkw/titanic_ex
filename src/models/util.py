@@ -36,12 +36,12 @@ class Util:
 
 class Logger:
 
-    def __init__(self):
+    def __init__(self, general_name='general', result_name='result'):
         self.general_logger = logging.getLogger('general')
         self.result_logger = logging.getLogger('result')
         stream_handler = logging.StreamHandler()
-        file_general_handler = logging.FileHandler('logs/general.log')
-        file_result_handler = logging.FileHandler('logs/result.log')
+        file_general_handler = logging.FileHandler('logs/'+ general_name + '.log')
+        file_result_handler = logging.FileHandler('logs/' + result_name + '.log')
         if len(self.general_logger.handlers) == 0:
             self.general_logger.addHandler(stream_handler)
             self.general_logger.addHandler(file_general_handler)

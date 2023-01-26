@@ -2,9 +2,10 @@ import numpy as np
 import pandas as pd
 
 from models.model_xgb import ModelXGB
-from models.runner import Runner
+from models.runner_2 import Runner
 from models.util import Submission
 
+# 数値の特徴量をカテゴリ化した特徴量を追加した推論結果を求める。
 if __name__ == '__main__':
 
     params_xgb = {
@@ -28,10 +29,10 @@ if __name__ == '__main__':
     features = ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
 
     # xgboostによる学習・予測
-    runner = Runner('xgb1', ModelXGB, features, params_xgb)
+    runner = Runner('xgb2', ModelXGB, features, params_xgb)
     runner.run_train_cv()
     runner.run_predict_cv()
-    Submission.create_submission('xgb1')
+    Submission.create_submission('xgb2')
 
     '''
     # (参考）xgboostによる学習・予測 - 学習データ全体を使う場合
