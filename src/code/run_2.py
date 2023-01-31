@@ -28,11 +28,14 @@ if __name__ == '__main__':
     # 特徴量の指定
     features = ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
 
+    # 目的変数のカラム名の指定
+    target_name = 'Survived'
+
     # xgboostによる学習・予測
     runner = Runner('xgb2', ModelXGB, features, params_xgb)
     runner.run_train_cv()
     runner.run_predict_cv()
-    Submission.create_submission('xgb2')
+    Submission.create_submission('xgb2', target_name)
 
     '''
     # (参考）xgboostによる学習・予測 - 学習データ全体を使う場合

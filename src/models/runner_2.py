@@ -3,6 +3,7 @@ import pandas as pd
 from models.model import Model
 from sklearn.metrics import log_loss
 from sklearn.model_selection import StratifiedKFold
+from sklearn.preprocessing import StandardScaler
 from typing import Callable, List, Optional, Tuple, Union
 
 from models.util import Logger, Util
@@ -133,8 +134,11 @@ class Runner:
         # 予測の平均値を出力する
         pred_avg = np.mean(preds, axis=0)
 
+        # 予測を0or1にする
+        pred_results = np.where(pred_avg > 0.5, 1, 0)
+
         # 予測結果の保存
-        Util.dump(pred_avg, f'model/pred/{self.run_name}-test.pkl')
+        Util.dump(pred_results, f'model/pred/{self.run_name}-test.pkl')
 
         logger.info(f'{self.run_name} - end prediction cv')
 
@@ -181,29 +185,33 @@ class Runner:
         run_fold_name = f'{self.run_name}-{i_fold}'
         return self.model_cls(run_fold_name, self.params)
 
-    def preprocess(self, train_df) -> pd.DataFrame:
+    def preprocess(self, df) -> pd.DataFrame:
         """データの前処理を行う
         
         Args:
-            train_df (pd.DataFrame): 前処理を行うデータフレーム
+            df (pd.DataFrame): 前処理を行うデータフレーム
 
         Returns:
             pd.DataFrame: 前処理済みのデータフレーム
         """
-        train_df['Sex'] = train_df['Sex'].astype("category")
-        train_df['Pclass'] = train_df['Pclass'].astype("category")
-        train_df['Age'] = train_df['Age'].fillna(-1)
-        train_df['Age'] = train_df['Age'].astype("int")
-        train_df['SibSp'] = train_df['SibSp'].astype("int")
-        train_df['Parch'] = train_df['Parch'].astype("int")
-        train_df['Embarked'] = train_df['Embarked'].astype("category")
+        df['Sex'] = df['Sex'].astype("category")
+        df['Pclass'] = df['Pclass'].astype("category")
+        df['Age'] = df['Age'].fillna(-1)
+        df['Age'] = df['Age'].astype("int")
+        df['SibSp'] = df['SibSp'].astype("int")
+        df['Parch'] = df['Parch'].astype("int")
+        df['Embarked'] = df['Embarked'].astype("category")
 
         # 数値データをカテゴリ化した特徴量として追加
-        train_df['Age_rank'] = (train_df['Age']//10*10).astype('category')
-        train_df['Fare_rank'] = (train_df['Fare']//100*100).astype('category')
-        train_df.drop('Age', axis=1, inplace=True)
-        train_df.drop('Fare', axis=1, inplace=True)
-        return train_df
+        df['Age_rank'] = (df['Age']//10*10).astype('category')
+        df['Fare_rank'] = (df['Fare']//100*100).astype('category')
+
+        # 数値データを正規化
+        scaler = StandardScaler()
+        scaler.fit(df[['Age', 'Fare']])
+        df[['Age', 'Fare']] = scaler.fit_transform(df[['Age', 'Fare']])
+
+        return df
 
     def load_x_train(self) -> pd.DataFrame:
         """学習データの特徴量を読み込む
