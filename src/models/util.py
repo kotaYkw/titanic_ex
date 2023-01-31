@@ -110,14 +110,14 @@ class Logger:
 class Submission:
 
     @classmethod
-    def create_submission(cls, run_name: str) -> None:
+    def create_submission(cls, run_name: str, target_name: str) -> None:
         """提出形式に則った結果ファイルを出力
 
         Args:
             run_name (str): ランの名前
+            target_name (str): 目的変数のカラム名
         """
         submission = pd.read_csv('input/sampleSubmission.csv')
         pred = Util.load(f'model/pred/{run_name}-test.pkl')
-        # for i in range(pred.shape[1]):
-        #     submission[f'Class_{i + 1}'] = pred[:, i]
+        submission[target_name] = pred
         submission.to_csv(f'submission/{run_name}.csv', index=False)
