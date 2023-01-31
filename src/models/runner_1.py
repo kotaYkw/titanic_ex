@@ -133,8 +133,11 @@ class Runner:
         # 予測の平均値を出力する
         pred_avg = np.mean(preds, axis=0)
 
+        # 予測を0or1にする
+        pred_results = np.where(pred_avg > 0.5, 1, 0)
+
         # 予測結果の保存
-        Util.dump(pred_avg, f'model/pred/{self.run_name}-test.pkl')
+        Util.dump(pred_results, f'model/pred/{self.run_name}-test.pkl')
 
         logger.info(f'{self.run_name} - end prediction cv')
 
